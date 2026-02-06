@@ -190,6 +190,16 @@
         "lightNode": "0x0001805c0b57dbd48b5c5c26e237a135ddc678ae"
     },
     {
+      "name": "Avax",
+      "chainId": "43114",
+      "type": "evm",
+      "wToken": "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",
+      "mos": "0x0000317Bec33Af037b5fAb2028f52d14658F6A56",
+      "auth": "0xACC31A6756B60304C03d6626fc98c062E4539CCA",
+      "feeService": "0xfeE31a1FD7FcA0E05428ff751242e46F6D5769a6",
+      "lightNode": "0x0001805c0b57dbd48b5c5c26e237a135ddc678ae"
+    },
+    {
         "name": "Solana",
         "chainId": "1360108768460801",
         "type": "solana",

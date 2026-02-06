@@ -41,6 +41,7 @@ function needVerify(chainId) {
     11155111, // sepolia
     97, // bsctest
     421614, // arbitrum sepolia
+    43114, // avax
     22776
   ];
   if (needs.includes(chainId)) {

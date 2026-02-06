@@ -1,7 +1,8 @@
 let { create } = require("../../utils/create.js");
-let { getRole } = require("../../utils/helper");
+let { getRole, isRelayChain } = require("../../utils/helper");
 
 let { getToken, saveDeployment, getDeployment } = require("../utils/utils");
+const { getTronContract } = require("../../utils/create");
 
 async function getVault(network, vault, token, v2) {
   let vaultAddr = vault;
@@ -15,6 +16,19 @@ async function getVault(network, vault, token, v2) {
   let vaultToken = await ethers.getContractAt("VaultTokenV3", vaultAddr);
 
   return vaultToken;
+}
+
+async function getBridge(network) {
+  let addr = await getDeployment(network, "bridgeProxy");
+  let bridge;
+  if (network === "Tron" || network === "TronTest") {
+    bridge = await getTronContract("Bridge", hre.artifacts, hre.network.name, addr);
+  } else {
+    let contract = isRelayChain(network) ? "BridgeAndRelay" : "Bridge";
+    bridge = await ethers.getContractAt(contract, addr);
+  }
+
+  return bridge;
 }
 
 task("vault:deploy", "Deploy the vault token")
@@ -123,3 +137,102 @@ task("vault:update", "update vault status")
     ).wait();
     console.log(`MAPVaultToken ${vaultToken.address} set amount success`);
   });
+
+
+task("vault:deposit", "Cross-chain deposit token")
+  .addOptionalParam("token", "The token address", "0x0000000000000000000000000000000000000000", types.string)
+  .addOptionalParam("address", "The receiver address", "", types.string)
+  .addParam("value", "deposit value, unit WEI")
+  .setAction(async (taskArgs, hre) => {
+    const accounts = await ethers.getSigners();
+    const deployer = accounts[0];
+
+    console.log("deposit address:", deployer.address);
+
+    let bridge = await getBridge(hre.network.name);
+    if (!bridge) {
+      throw "bridge not deployed ...";
+    }
+    console.log("bridge address:", bridge.address);
+
+    let address = taskArgs.address;
+    if (taskArgs.address === "") {
+      address = deployer.address;
+    }
+
+    let tokenAddr = await getToken(hre.network.name, taskArgs.token);
+    console.log("token address:", tokenAddr);
+
+    if (tokenAddr === "0x0000000000000000000000000000000000000000") {
+      let value = ethers.utils.parseUnits(taskArgs.value, 18);
+      await (await mos.connect(deployer).depositNative(address, { value: value, gasLimit: 150000 })).wait();
+    } else {
+      let token = await ethers.getContractAt("IERC20Metadata", tokenAddr);
+      let decimals = await token.decimals();
+      value = ethers.utils.parseUnits(taskArgs.value, decimals);
+
+      let approved = await token.allowance(deployer.address, bridge.address);
+      console.log("approved ", approved);
+      if (approved.lt(value)) {
+        console.log(`${tokenAddr} approve ${bridge.address} value [${value}] ...`);
+        await (await token.approve(bridge.address, value)).wait();
+      }
+
+      console.log("deposit token... ");
+      await (await bridge.depositToken(tokenAddr, address, value)).wait();
+    }
+
+    console.log(`deposit token ${taskArgs.token} ${taskArgs.value} to ${address} successful`);
+  });
+
+task("vault:withdraw", "withdraw token")
+  .addOptionalParam("token", "The token address", "0x0000000000000000000000000000000000000000", types.string)
+  .addOptionalParam("address", "The receiver address", "", types.string)
+  .addOptionalParam("value", "withdraw value, 0 for all", "0", types.string)
+  .setAction(async (taskArgs, hre) => {
+    const accounts = await ethers.getSigners();
+    const deployer = accounts[0];
+    console.log("deployer address:", deployer.address);
+
+    let bridge = await getBridge(hre.network.name);
+    if (!bridge) {
+      throw "bridge not deployed ...";
+    }
+    console.log("bridge address:", bridge.address);
+
+    let address = taskArgs.address;
+    if (taskArgs.address === "") {
+      address = deployer.address;
+    }
+
+    let tokenAddr = await getToken(hre.network.config.chainId, taskArgs.token);
+    if (taskArgs.token === "0x0000000000000000000000000000000000000000") {
+      tokenAddr = await mos.wToken();
+    }
+
+    let managerAddress = await mos.tokenRegister();
+    let manager = await ethers.getContractAt("TokenRegisterV2", managerAddress);
+
+    let vaultAddress = await manager.getVaultToken(tokenAddr);
+
+    let vaultToken = await ethers.getContractAt("VaultTokenV2", vaultAddress);
+    let decimals = await vaultToken.decimals();
+    let value;
+    if (taskArgs.value === "0") {
+      value = await vaultToken.balanceOf(address);
+    } else {
+      value = ethers.utils.parseUnits(taskArgs.value, decimals);
+    }
+
+    console.log(`token address: ${tokenAddr}`);
+    console.log(`vault token address: ${vaultAddress}`);
+    console.log(`vault token value: ${value}`);
+    console.log(`receiver: ${address}`);
+
+    await (await mos.connect(deployer).withdraw(vaultAddress, value)).wait();
+
+    console.log(
+      `withdraw token ${taskArgs.token} from vault ${vaultAddress} ${taskArgs.value} to  ${address} successful`
+    );
+  });
+

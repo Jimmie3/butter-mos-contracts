@@ -44,7 +44,7 @@ module.exports = {
     hardhat: {
       chainId: 212,
       initialBaseFeePerGas: 0,
-      allowUnlimitedContractSize: true
+      allowUnlimitedContractSize: true,
     },
     Eth: {
       url: "https://eth-mainnet.public.blastapi.io",
@@ -80,13 +80,13 @@ module.exports = {
     },
     Merlin: {
       url: `https://rpc.merlinchain.io`,
-      chainId : 4200,
+      chainId: 4200,
       gasPrice: 50000000,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     Blast: {
       url: `https://rpc.blast.io`,
-      chainId : 81457,
+      chainId: 81457,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     Base: {
@@ -96,7 +96,7 @@ module.exports = {
     },
     Ainn: {
       url: `https://mainnet-rpc.ailayer.xyz/`,
-      chainId : 2649,
+      chainId: 2649,
       gasPrice: 50000000,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
@@ -109,43 +109,43 @@ module.exports = {
     },
     B2: {
       url: `https://rpc.bsquared.network`,
-      chainId : 223,
+      chainId: 223,
       gasPrice: 10000,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     Optimism: {
       url: `https://mainnet.optimism.io`,
-      chainId : 10,
+      chainId: 10,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     Arbitrum: {
       url: `https://arb1.arbitrum.io/rpc`,
-      chainId : 42161,
+      chainId: 42161,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     Linea: {
       url: `https://rpc.linea.build`,
-      chainId : 59144,
+      chainId: 59144,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     Unichain: {
       url: `https://mainnet.unichain.org`,
-      chainId : 130,
+      chainId: 130,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     Scroll: {
       url: `https://rpc.scroll.io`,
-      chainId : 534352,
+      chainId: 534352,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     Mantle: {
       url: `https://rpc.mantle.xyz`,
-      chainId : 5000,
+      chainId: 5000,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
     XLayer: {
       url: `https://rpc.xlayer.tech`,
-      chainId : 196,
+      chainId: 196,
       accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
 
@@ -200,8 +200,8 @@ module.exports = {
   etherscan: {
     apiKey: {
       Bttc: process.env.API_KEY_BTTC,
-      Eth:  process.env.API_KEY_ETH,
-      Bsc:  process.env.API_KEY_BSC,
+      Eth: process.env.API_KEY_ETH,
+      Bsc: process.env.API_KEY_BSC,
       Matic: process.env.API_KEY_MATIC,
       Blast: process.env.API_KEY_BLAST,
       Base: process.env.API_KEY_BASE,
@@ -214,8 +214,9 @@ module.exports = {
       Sepolia: process.env.API_KEY_ETH,
       BscTest: process.env.API_KEY_BSC,
       ArbitrumSepolia: process.env.API_KEY_ARBITRUM,
-      Unichain:process.env.API_KEY_ETH,
-      Mapo:''
+      Unichain: process.env.API_KEY_ETH,
+      Avax: process.env.API_KEY_ETH,
+      Mapo: process.env.API_KEY_MAPO,
     },
     customChains: [
       {
@@ -347,13 +348,21 @@ module.exports = {
         },
       },
       {
+        network: "Avax",
+        chainId: 43114,
+        urls: {
+          apiURL: "https://api.etherscan.io/v2/api?chainid=43114",
+          browserURL: "https://snowscan.xyz/",
+        },
+      },
+      {
         network: "Mapo",
         chainId: 22776,
         urls: {
           apiURL: "https://explorer-api.chainservice.io/api",
-          browserURL: "https://explorer.mapprotocol.io"
+          browserURL: "https://explorer.mapprotocol.io",
         },
-      }
+      },
     ],
   },
 };
