@@ -29,6 +29,7 @@ abstract contract BridgeAbstract is
 {
     address internal constant ZERO_ADDRESS = address(0);
     uint256 constant MINTABLE_TOKEN = 0x01;
+    uint256 constant MIN_GAS_CALL_ONRECEIVED = 300_000;
 
     uint256 public immutable selfChainId = block.chainid;
 
@@ -74,6 +75,7 @@ abstract contract BridgeAbstract is
     error insufficient_liquidity();
     error token_transfer_fail();
     error failed_receiver_not_set();
+    error call_on_received_gas_too_low();
 
     event SetContract(uint256 t, address addr);
     event SetFailedReceiver(address _failedreceiver);
@@ -266,6 +268,7 @@ abstract contract BridgeAbstract is
             bool result;
             (_inEvent.token, result) = _tokenTransferOutCatch(_inEvent.token, to, _inEvent.amount, false);
             if (result) {
+                if(gasleft() < MIN_GAS_CALL_ONRECEIVED) revert call_on_received_gas_too_low();
                 try
                     IButterReceiver(to).onReceived(
                         _inEvent.orderId,
