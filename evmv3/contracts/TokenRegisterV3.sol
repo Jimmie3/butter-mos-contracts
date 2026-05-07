@@ -553,12 +553,13 @@ contract TokenRegisterV3 is ITokenRegisterV3, UUPSUpgradeable, AccessControlEnum
         } else {
             FeeRate memory tochainFeeRate = tokenList[_token].toChainFees[_toChain];
             FeeRate memory fromChainFeeRate = tokenList[_token].fromChainFees[_fromChain];
-            uint256 max = tochainFeeRate.highest + fromChainFeeRate.highest;
-            uint256 min = tochainFeeRate.lowest + fromChainFeeRate.lowest;
+            // uint256 max = tochainFeeRate.highest + fromChainFeeRate.highest;
+            // uint256 min = tochainFeeRate.lowest + fromChainFeeRate.lowest;
             rate = fromChainFeeRate.rate + tochainFeeRate.rate;
             beforeFee = _getBeforeAmount(rate, _amount);
-            if (beforeFee < min) return min;
-            if (beforeFee > max) return max;
+            
+            // if (beforeFee < min) return min;
+            // if (beforeFee > max) return max;
         }
         return beforeFee;
     }
