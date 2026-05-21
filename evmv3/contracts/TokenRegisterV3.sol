@@ -204,7 +204,7 @@ contract TokenRegisterV3 is ITokenRegisterV3, UUPSUpgradeable, AccessControlEnum
         Token storage token = tokenList[_token];
         require(token.tokenAddress != address(0), "register: invalid relay token");
         require(_highest >= _lowest, "register: invalid highest and lowest");
-        require(_rate <= MAX_RATE_UNI, "register: invalid proportion value");
+        require(_rate < (MAX_RATE_UNI / 2), "register: invalid proportion value");
         token.fromChainFees[_fromChain] = FeeRate(_lowest, _highest, _rate);
         emit SetFromChainTokenFee(_token, _fromChain, _lowest, _highest, _rate);
     }
@@ -219,7 +219,7 @@ contract TokenRegisterV3 is ITokenRegisterV3, UUPSUpgradeable, AccessControlEnum
         Token storage token = tokenList[_token];
         require(token.tokenAddress != address(0), "register: invalid relay token");
         require(_highest >= _lowest, "register: invalid highest and lowest");
-        require(_rate <= MAX_RATE_UNI, "register: invalid proportion value");
+        require(_rate <= (MAX_RATE_UNI / 2), "register: invalid proportion value");
 
         token.toChainFees[_toChain] = FeeRate(_lowest, _highest, _rate);
 
@@ -248,7 +248,7 @@ contract TokenRegisterV3 is ITokenRegisterV3, UUPSUpgradeable, AccessControlEnum
         uint256 _rate,
         bool _isWhitelist
     ) external onlyRole(MANAGER_ROLE) {
-        require(_rate <= MAX_RATE_UNI, "register: invalid proportion value");
+        require(_rate < (MAX_RATE_UNI / 2), "register: invalid proportion value");
         bytes32 key = _getKey(_fromChain, _caller, _token);
         if (_isWhitelist) {
             toChainFeeList[key][_toChain] = (_rate << 1) | 0x01;
@@ -266,7 +266,7 @@ contract TokenRegisterV3 is ITokenRegisterV3, UUPSUpgradeable, AccessControlEnum
         uint256 _rate,
         bool _isWhitelist
     ) external onlyRole(MANAGER_ROLE) {
-        require(_rate <= MAX_RATE_UNI, "register: invalid proportion value");
+        require(_rate < (MAX_RATE_UNI / 2), "register: invalid proportion value");
         bytes32 key = _getKey(_fromChain, _caller, _token);
         if (_isWhitelist) {
             fromChainFeeList[key] = (_rate << 1) | 0x01;
@@ -553,12 +553,13 @@ contract TokenRegisterV3 is ITokenRegisterV3, UUPSUpgradeable, AccessControlEnum
         } else {
             FeeRate memory tochainFeeRate = tokenList[_token].toChainFees[_toChain];
             FeeRate memory fromChainFeeRate = tokenList[_token].fromChainFees[_fromChain];
-            uint256 max = tochainFeeRate.highest + fromChainFeeRate.highest;
-            uint256 min = tochainFeeRate.lowest + fromChainFeeRate.lowest;
+            // uint256 max = tochainFeeRate.highest + fromChainFeeRate.highest;
+            // uint256 min = tochainFeeRate.lowest + fromChainFeeRate.lowest;
             rate = fromChainFeeRate.rate + tochainFeeRate.rate;
             beforeFee = _getBeforeAmount(rate, _amount);
-            if (beforeFee < min) return min;
-            if (beforeFee > max) return max;
+            
+            // if (beforeFee < min) return min;
+            // if (beforeFee > max) return max;
         }
         return beforeFee;
     }

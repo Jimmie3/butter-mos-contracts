@@ -239,7 +239,7 @@ contract BridgeAndRelay is BridgeAbstract {
         uint256 _toChain,
         bytes calldata _messageData,
         address _feeToken
-    ) external payable override returns (bytes32 orderId) {
+    ) external payable override whenNotPaused returns (bytes32 orderId) {
         address sender = msg.sender;
         MessageInEvent memory inEvent;
 
