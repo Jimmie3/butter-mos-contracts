@@ -12,3 +12,4 @@ require("./subs/decode.js");
 require("./subs/flatten.js");
 require("./subs/depositWhitelsit.js");
 require("./subs/protocolFee.js");
+require("./subs/upgradeCheck.js");
